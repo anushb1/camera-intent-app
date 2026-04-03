@@ -876,7 +876,8 @@
       btnTodoList.classList.toggle("hidden", !looksList);
       const preferDocOverList = s.document >= s.todoList + 0.5;
       btnGoogleDoc.classList.toggle("hidden", !(looksDoc && (preferDocOverList || !looksList)));
-      btnTask.classList.toggle("hidden", looksList && !hasDate);
+      /* Always show Create Task — hiding it when a list was detected broke taps for many scans */
+      btnTask.classList.remove("hidden");
 
       btnNote.classList.remove("hidden");
       btnReminder.classList.remove("hidden");
