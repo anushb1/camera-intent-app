@@ -371,6 +371,58 @@
       font-weight: 600;
     }
 
+    /* Google Calendar–style event type chips (Create event) */
+    .event-type-chips-wrap {
+      margin-bottom: 12px;
+    }
+
+    .event-type-chips-wrap.hidden {
+      display: none;
+    }
+
+    .event-type-chips {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 4px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .event-type-chip {
+      flex-shrink: 0;
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #3c4043;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1.2;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .event-type-chip:hover {
+      background: #f1f3f4;
+    }
+
+    .event-type-chip[aria-pressed="true"] {
+      background: #e8f0fe;
+      color: #1967d2;
+    }
+
+    .event-type-chip:focus-visible {
+      outline: 2px solid #1967d2;
+      outline-offset: 2px;
+    }
+
     .section-label {
       display: none;
     }
@@ -515,10 +567,6 @@
       cursor: pointer;
     }
 
-    .modal[data-mode="reminder"] .field-guests {
-      display: none;
-    }
-
     .modal[data-mode="task"] .field-guests {
       opacity: 0.9;
     }
@@ -634,12 +682,6 @@
             <span class="pill-label">List</span>
           </button>
         </div>
-        <div class="intent-row cols-1">
-          <button type="button" class="intent-pill hidden" id="btnReminder" data-intent="reminder" title="Reminder">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6"/></svg>
-            <span class="pill-label">Remind</span>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -668,7 +710,18 @@
 
         <div id="blockAction">
           <div class="event-name-field">
-            <input type="text" id="fTitle" name="title" autocomplete="off" placeholder="Title" />
+            <input type="text" id="fTitle" name="title" autocomplete="off" placeholder="Add title" />
+          </div>
+
+          <div class="event-type-chips-wrap hidden" id="eventTypeChipsWrap" aria-label="Event type">
+            <div class="event-type-chips" role="toolbar" aria-orientation="horizontal">
+              <button type="button" class="event-type-chip" data-event-type="event" aria-pressed="true">Event</button>
+              <button type="button" class="event-type-chip" data-event-type="task" aria-pressed="false">Task</button>
+              <button type="button" class="event-type-chip" data-event-type="outOfOffice" aria-pressed="false">Out of office</button>
+              <button type="button" class="event-type-chip" data-event-type="focusTime" aria-pressed="false">Focus time</button>
+              <button type="button" class="event-type-chip" data-event-type="workingLocation" aria-pressed="false">Working location</button>
+              <button type="button" class="event-type-chip" data-event-type="appointmentSchedule" aria-pressed="false">Appointment schedule</button>
+            </div>
           </div>
 
           <div class="modal-primary" id="modalPrimary">
@@ -744,8 +797,9 @@
     const btnTask = document.getElementById("btnTask");
     const btnGoogleDoc = document.getElementById("btnGoogleDoc");
     const btnTodoList = document.getElementById("btnTodoList");
-    const btnReminder = document.getElementById("btnReminder");
     const intentHint = document.getElementById("intentHint");
+    const eventTypeChipsWrap = document.getElementById("eventTypeChipsWrap");
+    const eventTypeChips = document.querySelectorAll(".event-type-chip");
     const backdrop = document.getElementById("backdrop");
     const actionModal = document.getElementById("actionModal");
     const modalTitle = document.getElementById("modalTitle");
@@ -772,6 +826,8 @@
     let lastClassification = null;
     let parsedTodoLines = [];
     let currentIntent = "event";
+    /** @type {"event"|"task"|"outOfOffice"|"focusTime"|"workingLocation"|"appointmentSchedule"} */
+    let selectedCalendarEventType = "event";
     let lastSavedPayload = null;
     let lastBlobUrl = null;
     const OCR_INTERVAL_MS = 1500;
@@ -928,13 +984,11 @@
         btnTask,
         btnGoogleDoc,
         btnTodoList,
-        btnReminder,
       ].forEach((b) => b.classList.add("hidden"));
 
       if (c.calendarPriority) {
         btnEvent.classList.remove("hidden");
-        btnReminder.classList.remove("hidden");
-        intentHint.textContent = "Looks like a date and time — calendar or reminder";
+        intentHint.textContent = "Looks like a date and time — open Calendar";
         intentHint.classList.remove("hidden");
         return;
       }
@@ -988,7 +1042,6 @@
           btnTask,
           btnGoogleDoc,
           btnTodoList,
-          btnReminder,
         ].forEach((el) => el.classList.add("hidden"));
       }
     }
@@ -1097,11 +1150,20 @@
       }
     }
 
+    function setCalendarEventType(type) {
+      selectedCalendarEventType = type;
+      eventTypeChips.forEach((chip) => {
+        const on = chip.dataset.eventType === type;
+        chip.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
     function resetForm() {
       fNotes.value = "";
       fUrl.value = "";
       fRemind.value = "0";
       document.getElementById("moreOptions").open = false;
+      setCalendarEventType("event");
     }
 
     function renderTodoList() {
@@ -1157,22 +1219,18 @@
 
       if (intent === "event") {
         modalTitle.textContent = "Create event";
-        fTitle.placeholder = "Title";
+        fTitle.placeholder = "Add title";
         fWhen.placeholder = "Date and time";
         fLoc.placeholder = "Location";
         fGuests.placeholder = "Guests";
+        eventTypeChipsWrap.classList.remove("hidden");
       } else if (intent === "task") {
         modalTitle.textContent = "Create task";
-        fTitle.placeholder = "Title";
+        fTitle.placeholder = "Add title";
         fWhen.placeholder = "Date and time";
         fLoc.placeholder = "Location";
         fGuests.placeholder = "Guests";
-      } else if (intent === "reminder") {
-        modalTitle.textContent = "Set reminder";
-        fTitle.placeholder = "Title";
-        fWhen.placeholder = "Date and time";
-        fLoc.placeholder = "Location";
-        fGuests.placeholder = "Guests";
+        eventTypeChipsWrap.classList.add("hidden");
       }
 
       backdrop.classList.add("open");
@@ -1190,6 +1248,7 @@
     function buildPayload() {
       return {
         intent: currentIntent,
+        calendarEventType: currentIntent === "event" ? selectedCalendarEventType : undefined,
         title: fTitle.value,
         when: fWhen.value,
         location: fLoc.value,
@@ -1250,7 +1309,6 @@
       const labels = {
         event: "Added to Calendar",
         task: "Task created",
-        reminder: "Reminder set",
       };
       closeModal();
       showToast(labels[currentIntent] || "Saved", lastBlobUrl);
@@ -1287,7 +1345,13 @@
     btnTask.addEventListener("click", () => openModal("task"));
     btnGoogleDoc.addEventListener("click", () => openModal("gdoc"));
     btnTodoList.addEventListener("click", () => openModal("todolist"));
-    btnReminder.addEventListener("click", () => openModal("reminder"));
+
+    eventTypeChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const t = chip.dataset.eventType;
+        if (t) setCalendarEventType(t);
+      });
+    });
 
     document.getElementById("btnCancel").addEventListener("click", closeModal);
     document.getElementById("btnCloseModal").addEventListener("click", closeModal);
