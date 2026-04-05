@@ -18,6 +18,9 @@
       --accent: #ed4335;
       --accent-hover: #d63b2e;
       --pill: rgba(255, 255, 255, 0.12);
+      --intent-pill-w: 142px;
+      --intent-pill-h: 38px;
+      --intent-pill-radius: 18px;
       --card-tint: #efd3d0;
       --radius: 16px;
       --modal-blue: #007aff;
@@ -88,8 +91,8 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      gap: 6px;
+      align-items: center;
+      gap: 8px;
     }
 
     .intent-hint {
@@ -106,18 +109,27 @@
       display: none;
     }
 
+    /* Flex (not grid) so when one pill in a row is .hidden, the visible pill stays centered */
     .intent-row {
-      display: grid;
-      gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       width: 100%;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
     }
 
     .intent-row.cols-2 {
-      grid-template-columns: 1fr 1fr;
+      max-width: calc(2 * var(--intent-pill-w) + 8px);
+    }
+
+    .intent-row.cols-1 {
+      max-width: var(--intent-pill-w);
     }
 
     .intent-row.cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: calc(3 * var(--intent-pill-w) + 16px);
     }
 
     .intent-label {
@@ -126,27 +138,30 @@
 
     .intent-pill {
       appearance: none;
-      border: none;
       margin: 0;
-      padding: 0 6px;
-      min-height: 34px;
-      height: 34px;
-      border-radius: 10px;
+      padding: 0 8px;
+      width: var(--intent-pill-w);
+      min-width: var(--intent-pill-w);
+      max-width: var(--intent-pill-w);
+      height: var(--intent-pill-h);
+      min-height: var(--intent-pill-h);
+      border-radius: var(--intent-pill-radius);
       font-family: inherit;
       font-size: 10px;
       font-weight: 600;
       letter-spacing: -0.01em;
-      color: #0a0a0a;
-      background: #fff;
+      color: rgba(12, 12, 14, 0.92);
+      background: rgba(255, 255, 255, 0.86);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.12s;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+      transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      width: 100%;
+      gap: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
       box-sizing: border-box;
     }
 
@@ -162,6 +177,10 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 100%;
+    }
+
+    .intent-pill:hover {
+      background: rgba(255, 255, 255, 0.92);
     }
 
     .intent-pill:active { transform: scale(0.97); }
@@ -496,39 +515,6 @@
       cursor: pointer;
     }
 
-    /* Share sheet */
-    .share-preview {
-      font-size: 13px;
-      line-height: 1.5;
-      color: #3f3f46;
-      background: #f4f4f5;
-      padding: 12px 14px;
-      border-radius: 10px;
-      max-height: 160px;
-      overflow-y: auto;
-      margin-bottom: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .modal[data-mode="share"] #blockAction {
-      display: none;
-    }
-
-    .modal[data-mode="share"] #shareBlock {
-      display: block !important;
-    }
-
-    .modal[data-mode="share"] #blockGdoc,
-    .modal[data-mode="share"] #blockTodo,
-    .modal[data-mode="share"] #blockNote {
-      display: none !important;
-    }
-
-    #shareBlock {
-      display: none;
-    }
-
     .modal[data-mode="reminder"] .field-guests {
       display: none;
     }
@@ -538,20 +524,17 @@
     }
 
     .modal[data-mode="gdoc"] #blockAction,
-    .modal[data-mode="todolist"] #blockAction,
-    .modal[data-mode="note"] #blockAction {
+    .modal[data-mode="todolist"] #blockAction {
       display: none;
     }
 
     .modal[data-mode="gdoc"] #blockGdoc,
-    .modal[data-mode="todolist"] #blockTodo,
-    .modal[data-mode="note"] #blockNote {
+    .modal[data-mode="todolist"] #blockTodo {
       display: block !important;
     }
 
     #blockGdoc,
-    #blockTodo,
-    #blockNote {
+    #blockTodo {
       display: none;
     }
 
@@ -581,17 +564,6 @@
 
     .todo-items input[type="checkbox"] {
       margin-top: 3px;
-    }
-
-    .note-body {
-      width: 100%;
-      min-height: 140px;
-      padding: 12px;
-      border: 1px solid #e5e5ea;
-      border-radius: 10px;
-      font-size: 15px;
-      font-family: inherit;
-      resize: vertical;
     }
 
     /* Toast */
@@ -648,25 +620,24 @@
         <div class="intent-row cols-2">
           <button type="button" class="intent-pill hidden" id="btnGoogleDoc" data-intent="gdoc" title="Send to Google Doc">
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-            <span class="pill-label">Docs</span>
+            <span class="pill-label">Doc</span>
           </button>
           <button type="button" class="intent-pill hidden" id="btnTodoList" data-intent="todolist" title="Todo list">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l2 2 4-4"/><path d="M21 12c.5 4.5-2.2 8-7 8s-8-3.5-7-8"/></svg>
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="9" y1="6" x2="20" y2="6" />
+              <line x1="9" y1="12" x2="20" y2="12" />
+              <line x1="9" y1="18" x2="20" y2="18" />
+              <circle cx="5" cy="6" r="1.5" fill="currentColor" stroke="none" />
+              <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+              <circle cx="5" cy="18" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
             <span class="pill-label">List</span>
           </button>
         </div>
-        <div class="intent-row cols-3">
-          <button type="button" class="intent-pill hidden" id="btnNote" data-intent="note" title="Note">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            <span class="pill-label">Note</span>
-          </button>
+        <div class="intent-row cols-1">
           <button type="button" class="intent-pill hidden" id="btnReminder" data-intent="reminder" title="Reminder">
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6"/></svg>
             <span class="pill-label">Remind</span>
-          </button>
-          <button type="button" class="intent-pill hidden" id="btnShare" data-intent="share" title="Share text">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
-            <span class="pill-label">Share</span>
           </button>
         </div>
       </div>
@@ -697,13 +668,13 @@
 
         <div id="blockAction">
           <div class="event-name-field">
-            <input type="text" id="fTitle" name="title" autocomplete="off" placeholder="Event name" />
+            <input type="text" id="fTitle" name="title" autocomplete="off" placeholder="Title" />
           </div>
 
           <div class="modal-primary" id="modalPrimary">
             <div class="row-field">
               <svg class="row-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-              <input type="text" id="fWhen" name="when" placeholder="Mar 15 · 2:00 PM" autocomplete="off" />
+              <input type="text" id="fWhen" name="when" placeholder="Date and time" autocomplete="off" />
             </div>
             <div class="row-field">
               <svg class="row-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -711,7 +682,7 @@
             </div>
             <div class="row-field field-guests">
               <svg class="row-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-              <textarea id="fGuests" name="guests" placeholder="Add guests" rows="2"></textarea>
+              <textarea id="fGuests" name="guests" placeholder="Guests" rows="2"></textarea>
             </div>
           </div>
 
@@ -719,7 +690,7 @@
             <summary>More options</summary>
             <div class="field">
               <label for="fNotes">Notes</label>
-              <textarea id="fNotes" placeholder="Agenda, details…"></textarea>
+              <textarea id="fNotes" placeholder="Optional notes"></textarea>
             </div>
             <div class="field">
               <label for="fUrl">Meeting or map link</label>
@@ -738,13 +709,6 @@
           </details>
         </div>
 
-        <div id="shareBlock" style="display:none;">
-          <p style="font-size:13px;color:#8e8e93;margin-bottom:8px;">Extracted text</p>
-          <div class="share-preview" id="sharePreview"></div>
-          <button type="button" class="btn" id="btnCopy" style="width:100%;margin-bottom:8px;padding:12px;border-radius:10px;border:1px solid #e5e5ea;background:#fff;font-size:16px;">Copy text</button>
-          <button type="button" class="btn-save-blue" id="btnShareNative" style="width:100%;display:none;">Share…</button>
-        </div>
-
         <div id="blockGdoc">
           <p class="gdoc-steps">
             Text will be <strong>copied</strong>, then <strong>docs.new</strong> opens a blank Google Doc. Paste there (<kbd style="font-size:12px;background:#f4f4f5;padding:2px 6px;border-radius:4px;">⌘V</kbd> / Ctrl+V).
@@ -754,15 +718,8 @@
         </div>
 
         <div id="blockTodo">
-          <p style="font-size:13px;color:#8e8e93;margin-bottom:8px;">Items from your scan</p>
+          <p style="font-size:13px;color:#8e8e93;margin-bottom:8px;">Add items (not filled from scan)</p>
           <ul class="todo-items" id="todoItems"></ul>
-        </div>
-
-        <div id="blockNote">
-          <div class="event-name-field">
-            <input type="text" id="fNoteTitle" placeholder="Title" autocomplete="off" />
-          </div>
-          <textarea class="note-body" id="fNoteBody" placeholder="Write your note…"></textarea>
         </div>
       </div>
 
@@ -787,9 +744,7 @@
     const btnTask = document.getElementById("btnTask");
     const btnGoogleDoc = document.getElementById("btnGoogleDoc");
     const btnTodoList = document.getElementById("btnTodoList");
-    const btnNote = document.getElementById("btnNote");
     const btnReminder = document.getElementById("btnReminder");
-    const btnShare = document.getElementById("btnShare");
     const intentHint = document.getElementById("intentHint");
     const backdrop = document.getElementById("backdrop");
     const actionModal = document.getElementById("actionModal");
@@ -802,11 +757,7 @@
     const fNotes = document.getElementById("fNotes");
     const fUrl = document.getElementById("fUrl");
     const fRemind = document.getElementById("fRemind");
-    const fNoteTitle = document.getElementById("fNoteTitle");
-    const fNoteBody = document.getElementById("fNoteBody");
     const todoItems = document.getElementById("todoItems");
-    const sharePreview = document.getElementById("sharePreview");
-    const btnShareNative = document.getElementById("btnShareNative");
     const btnSave = document.getElementById("btnSave");
     const toast = document.getElementById("toast");
     const toastView = document.getElementById("toastView");
@@ -823,96 +774,208 @@
     let currentIntent = "event";
     let lastSavedPayload = null;
     let lastBlobUrl = null;
-
     const OCR_INTERVAL_MS = 1500;
     const MIN_TEXT_LEN = 12;
+    /** Only block obviously broken OCR; stricter gating is in text/date heuristics below. */
+    const MIN_OCR_CONFIDENCE_HARD = 38;
 
-    /** Heuristic OCR routing: calendar vs list vs long document vs note */
+    function normalizeOcrStability(s) {
+      return s
+        .toLowerCase()
+        .replace(/[\u0000-\u001f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 220);
+    }
+
+    /** Reject short/gibberish frames (faces often yield junk that still passes MIN_TEXT_LEN). */
+    function isPlausibleOcrText(norm) {
+      if (norm.length < MIN_TEXT_LEN) return false;
+      const nonAlnum = (norm.match(/[^a-z0-9\s]/gi) || []).length;
+      if (nonAlnum / norm.length > 0.55) return false;
+      const words = norm.split(/\s+/).filter((w) => /[a-z]{2,}/i.test(w));
+      const letters = (norm.match(/[a-z]/gi) || []).length;
+      const digits = (norm.match(/\d/g) || []).length;
+      if (digits >= 8 && letters >= 6 && norm.length >= 14) return true;
+      return (
+        words.length >= 3 ||
+        (letters >= 18 && words.length >= 2) ||
+        (words.length >= 2 && letters >= 12)
+      );
+    }
+
+    /** Date/time cues for routing (OCR-tolerant: full month names, am/pm without colon, etc.). */
+    function scanDateTimeSignals(t) {
+      const hasMonthDay = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}/i.test(t);
+      const hasFullMonth = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(t);
+      const hasNumericDate =
+        /\b\d{1,2}[\/\-]\d{1,2}(\/\d{2,4})?\b/.test(t) ||
+        /\b\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}\b/.test(t) ||
+        /\b20\d{2}[\/\-]\d{1,2}[\/\-]\d{1,2}\b/.test(t);
+      const hasTimeColon =
+        /\b\d{1,2}:\d{2}\s*(?:am|pm|a\.m\.|p\.m\.)?\b/i.test(t) ||
+        /\b\d{1,2}:\d{2}\b/.test(t);
+      const hasTimeAmPm = /\b\d{1,2}\s*(?:am|pm|a\.m\.|p\.m\.)\b/i.test(t);
+      const hasTime = hasTimeColon || hasTimeAmPm;
+      const hasWeekday = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(t);
+      const hasDate = hasMonthDay || hasNumericDate || (hasFullMonth && /\d/.test(t));
+      const dateAndTime = hasDate && hasTime;
+      const weekdayAndTime = hasWeekday && hasTime;
+      const monthAndTime = hasFullMonth && hasTime;
+      const monthWeekday = hasFullMonth && hasWeekday;
+      const calendarLike =
+        dateAndTime || weekdayAndTime || monthAndTime || monthWeekday || (hasFullMonth && /\d/.test(t));
+      return { hasDate, hasTime, dateAndTime, weekdayAndTime, calendarLike };
+    }
+
+    /** Strong date patterns only — lone `hasTime` from noise was triggering intents. */
+    function hasTrustworthyDateSignal(t) {
+      const dt = scanDateTimeSignals(t);
+      if (dt.calendarLike) return true;
+      if (/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?\b/i.test(t)) return true;
+      if (/\b\d{1,2}[\/\-]\d{1,2}(?:\/\d{2,4})?\b/.test(t) || /\b20\d{2}[\/\-]\d{1,2}/.test(t)) return true;
+      if (/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(t) && /\d/.test(t)) return true;
+      return false;
+    }
+
+    /** English-like text — balanced so short lines (3+ words) still pass. */
+    function hasTrustworthyTextSignal(norm) {
+      const words = norm.split(/\s+/).filter((w) => /[a-z]{2,}/i.test(w));
+      const letters = (norm.match(/[a-z]/gi) || []).length;
+      const vowels = (norm.match(/[aeiouy]/gi) || []).length;
+      if (letters < 15 || words.length < 3) return false;
+      if (vowels < 3 || vowels / letters < 0.16) return false;
+      if (words.length < 4 && letters < 20) return false;
+      return true;
+    }
+
+    /** Only show intents when OCR sees real text and/or a trustworthy date — not random noise. */
+    function ocrJustifiesIntents(clean, norm) {
+      const t = clean.trim();
+      if (hasTrustworthyDateSignal(t)) return true;
+      return hasTrustworthyTextSignal(norm);
+    }
+
+    /** Heuristic OCR routing: calendar vs list vs long document */
     function classifyScan(text) {
       const t = text.trim();
       const lower = t.toLowerCase();
       const lines = t.split(/\n/).map((l) => l.trim()).filter(Boolean);
 
-      let scores = { event: 0, todoList: 0, document: 0, note: 0 };
+      let scores = { event: 0, todoList: 0, document: 0 };
       const listLineRe = /^(\s*[-*•]\s+|\s*\d+[\.)]\s+|\s*\[[ xX]\]\s+)/;
-      const listLines = lines.filter((l) => listLineRe.test(l) || l.length < 80 && /^[a-z]/i.test(l));
+      const markedListLines = lines.filter((l) => listLineRe.test(l));
       const bulletish = lines.filter((l) => listLineRe.test(l));
 
       if (/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}/i.test(t)) scores.event += 3;
+      if (/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(t)) scores.event += 2;
       if (/\b\d{1,2}[\/\-]\d{1,2}(\/\d{2,4})?\b/.test(t)) scores.event += 2;
-      if (/\b\d{1,2}:\d{2}\s*(am|pm)?\b/i.test(t)) scores.event += 2;
+      if (/\b\d{1,2}:\d{2}\s*(?:am|pm|a\.m\.|p\.m\.)?\b/i.test(t)) scores.event += 2;
       if (/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(t)) scores.event += 1.5;
       if (/\b(meeting|call|zoom|teams|webex|appointment|invite @|rsvp)\b/i.test(lower)) scores.event += 1.5;
 
       if (bulletish.length >= 2) scores.todoList += 4;
       else if (bulletish.length === 1) scores.todoList += 2;
       if (/\b(todo|to-do|action items?|groceries|shopping list|checklist|buy:|reminder:)\b/i.test(t)) scores.todoList += 2;
-      if (listLines.length >= 3 && lines.length <= 25) scores.todoList += 2;
+      if (markedListLines.length >= 3 && lines.length <= 25) scores.todoList += 2;
 
       if (t.length > 500) scores.document += 3;
       else if (t.length > 220) scores.document += 2;
       if (/\b(subject:|dear |sincerely|regards|memo|abstract|introduction|contract|policy|report)\b/i.test(lower)) scores.document += 3;
       if (lines.length >= 4 && lines.some((l) => l.length > 100)) scores.document += 2;
 
-      if (t.length < 180 && lines.length <= 6) scores.note += 2;
-      if (scores.event === 0 && scores.todoList === 0 && scores.document === 0) scores.note += 1;
+      if (t.length < 180 && lines.length <= 6) scores.document += 2;
+      if (scores.event === 0 && scores.todoList === 0 && scores.document === 0) scores.document += 1;
+
+      const dt = scanDateTimeSignals(t);
+      let calendarPriority = false;
+      if (dt.calendarLike) {
+        scores.event += 10;
+        scores.document = Math.max(0, scores.document - 10);
+        scores.todoList = Math.max(0, scores.todoList - 6);
+        calendarPriority = true;
+      }
 
       const hasStrongDate = scores.event >= 2;
       const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
       let label = "Detected text";
       if (top[1] >= 2) {
-        const labels = { event: "Date/time · likely schedule", todoList: "List · checklist / todos", document: "Long text · document", note: "Short note" };
+        const labels = { event: "Date/time · likely schedule", todoList: "List · checklist / todos", document: "Long text · document" };
         label = labels[top[0]] || label;
       }
 
       return {
         scores,
         hasStrongDate,
+        calendarPriority,
         primary: top[0],
         hint: label,
         listLines: lines.filter((l) => l.replace(listLineRe, "").trim().length > 0),
       };
     }
 
-    function parseTodoItems(text) {
-      const lines = text.split(/\n/).map((l) => l.trim()).filter(Boolean);
-      const listLineRe = /^(\s*[-*•]\s+|\s*\d+[\.)]\s+|\s*\[[ xX]\]\s*)/;
-      const items = [];
-      for (const line of lines) {
-        const cleaned = line.replace(listLineRe, "").trim();
-        if (cleaned.length > 0 && cleaned.length < 400) items.push(cleaned);
-      }
-      return items.slice(0, 40);
-    }
-
+    /** Show only intent pills that match the strongest OCR signals (no “show everything” fallback). */
     function applyIntentVisibility(c) {
       const s = c.scores;
-      const hasDate = s.event >= 1.5 || c.hasStrongDate;
-      const looksList = s.todoList >= 2;
-      const looksDoc = s.document >= 2 || lastText.length > 320;
+      const ranked = Object.entries(s).sort((a, b) => b[1] - a[1]);
+      const topKey = ranked[0][0];
+      const topVal = ranked[0][1];
+      const secondKey = ranked[1][0];
+      const secondVal = ranked[1][1];
 
-      btnEvent.classList.toggle("hidden", !hasDate);
-      btnTodoList.classList.toggle("hidden", !looksList);
-      const preferDocOverList = s.document >= s.todoList + 0.5;
-      btnGoogleDoc.classList.toggle("hidden", !(looksDoc && (preferDocOverList || !looksList)));
-      /* Always show Create Task — hiding it when a list was detected broke taps for many scans */
-      btnTask.classList.remove("hidden");
+      [
+        btnEvent,
+        btnTask,
+        btnGoogleDoc,
+        btnTodoList,
+        btnReminder,
+      ].forEach((b) => b.classList.add("hidden"));
 
-      btnNote.classList.remove("hidden");
-      btnReminder.classList.remove("hidden");
-      btnShare.classList.remove("hidden");
-
-      const visible = [btnEvent, btnTask, btnGoogleDoc, btnTodoList].filter((b) => !b.classList.contains("hidden"));
-      if (visible.length === 0) {
-        btnGoogleDoc.classList.remove("hidden");
-        btnTask.classList.remove("hidden");
+      if (c.calendarPriority) {
+        btnEvent.classList.remove("hidden");
+        btnReminder.classList.remove("hidden");
+        intentHint.textContent = "Looks like a date and time — calendar or reminder";
+        intentHint.classList.remove("hidden");
+        return;
       }
 
-      let extra = "";
-      if (hasDate) extra = " · Try Calendar first";
-      else if (looksList) extra = " · Try Todo list";
-      else if (looksDoc) extra = " · Try Google Doc";
-      intentHint.textContent = c.hint + extra;
+      const WIN = 2;
+      const NEAR = 1.15;
+      const secondIsRunnerUp = secondVal >= topVal - NEAR && secondVal >= 1.35;
+
+      const reveal = (key) => {
+        if (key === "event") btnEvent.classList.remove("hidden");
+        if (key === "todoList") btnTodoList.classList.remove("hidden");
+        if (key === "document") btnGoogleDoc.classList.remove("hidden");
+      };
+
+      if (topVal < 1.5) {
+        btnGoogleDoc.classList.remove("hidden");
+        intentHint.textContent = "Scan a date, a list, or a block of text";
+        intentHint.classList.remove("hidden");
+        return;
+      }
+
+      if (topVal >= WIN) {
+        reveal(topKey);
+        if (secondIsRunnerUp && secondKey !== topKey) {
+          reveal(secondKey);
+        }
+        if (s.todoList >= 1.2 && s.todoList < WIN && s.document < 2 && topKey !== "document") {
+          btnTask.classList.remove("hidden");
+        }
+      } else {
+        reveal(topKey);
+        if (secondVal >= 1.4) reveal(secondKey);
+        if (s.todoList >= 1.2 && s.todoList < WIN && s.document < 2) btnTask.classList.remove("hidden");
+      }
+
+      const hintMap = {
+        event: "Looks like a date or schedule",
+        todoList: "Looks like a checklist",
+        document: "Looks like a document or long text",
+      };
+      intentHint.textContent = hintMap[topKey] || "Text detected";
       intentHint.classList.remove("hidden");
     }
 
@@ -925,9 +988,7 @@
           btnTask,
           btnGoogleDoc,
           btnTodoList,
-          btnNote,
           btnReminder,
-          btnShare,
         ].forEach((el) => el.classList.add("hidden"));
       }
     }
@@ -1006,10 +1067,19 @@
       try {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const {
-          data: { text },
+          data: { text, confidence: ocrConfRaw },
         } = await worker.recognize(canvas);
         const clean = text.replace(/\|/g, "I").trim();
         if (clean.length < MIN_TEXT_LEN) {
+          showIntents(false);
+          return;
+        }
+        const norm = normalizeOcrStability(clean);
+        if (!isPlausibleOcrText(norm) || !ocrJustifiesIntents(clean, norm)) {
+          showIntents(false);
+          return;
+        }
+        if (typeof ocrConfRaw === "number" && ocrConfRaw < MIN_OCR_CONFIDENCE_HARD && !hasTrustworthyDateSignal(clean)) {
           showIntents(false);
           return;
         }
@@ -1017,10 +1087,7 @@
         const ent = parseEntities(clean);
         extracted = { title: ent.title, when: ent.when, location: ent.location };
         lastClassification = classifyScan(clean);
-        parsedTodoLines = parseTodoItems(clean);
-        if (parsedTodoLines.length === 0) {
-          parsedTodoLines = clean.split(/\n/).map((l) => l.trim()).filter((l) => l.length > 0).slice(0, 20);
-        }
+        parsedTodoLines = [];
         applyIntentVisibility(lastClassification);
         showIntents(true);
       } catch (e) {
@@ -1039,7 +1106,7 @@
 
     function renderTodoList() {
       todoItems.innerHTML = "";
-      const items = parsedTodoLines.length ? parsedTodoLines : [extracted.title || "Item"];
+      const items = [""];
       items.forEach((text, i) => {
         const li = document.createElement("li");
         const cb = document.createElement("input");
@@ -1048,7 +1115,7 @@
         cb.id = "todo-cb-" + i;
         const lab = document.createElement("label");
         lab.htmlFor = cb.id;
-        lab.textContent = text;
+        lab.textContent = text.trim() || "\u00a0";
         li.appendChild(cb);
         li.appendChild(lab);
         todoItems.appendChild(li);
@@ -1058,19 +1125,7 @@
     function openModal(intent) {
       currentIntent = intent;
       resetForm();
-      actionModal.dataset.mode = intent === "share" ? "share" : intent;
-
-      if (intent === "share") {
-        modalTitle.textContent = "Share extract";
-        modalSub.textContent = "Copy or share the text recognized from the camera.";
-        modalSub.classList.remove("hidden");
-        sharePreview.textContent = lastText || "(No text yet — point at text and wait.)";
-        btnSave.textContent = "Done";
-        btnShareNative.style.display = typeof navigator !== "undefined" && navigator.share ? "block" : "none";
-        backdrop.classList.add("open");
-        backdrop.setAttribute("aria-hidden", "false");
-        return;
-      }
+      actionModal.dataset.mode = intent;
 
       if (intent === "gdoc") {
         modalTitle.textContent = "Send to Google Docs";
@@ -1091,47 +1146,33 @@
         return;
       }
 
-      if (intent === "note") {
-        modalTitle.textContent = "Note";
-        modalSub.classList.add("hidden");
-        fNoteTitle.value = "";
-        fNoteBody.value = "";
-        btnSave.textContent = "Save note";
-        backdrop.classList.add("open");
-        backdrop.setAttribute("aria-hidden", "false");
-        return;
-      }
-
       modalSub.classList.add("hidden");
       btnSave.textContent = "Save";
 
-      fWhen.value = extracted.when || "";
-      fLoc.value = extracted.location || "";
+      /* No OCR prefill — fields start empty so users type what they want */
+      fWhen.value = "";
+      fLoc.value = "";
       fGuests.value = "";
-      fTitle.value =
-        intent === "task"
-          ? `Task: ${extracted.title}`
-          : intent === "reminder"
-            ? extracted.title
-            : extracted.title;
+      fTitle.value = "";
 
       if (intent === "event") {
         modalTitle.textContent = "Create event";
-        fTitle.placeholder = "Event name";
-        fWhen.placeholder = "Mar 15 · 2:00 PM";
+        fTitle.placeholder = "Title";
+        fWhen.placeholder = "Date and time";
         fLoc.placeholder = "Location";
-        fGuests.placeholder = "Add guests";
+        fGuests.placeholder = "Guests";
       } else if (intent === "task") {
         modalTitle.textContent = "Create task";
-        fTitle.placeholder = "Task title";
-        fWhen.placeholder = "Due date · time";
-        fLoc.placeholder = "Location (optional)";
-        fGuests.placeholder = "Assignees (optional)";
+        fTitle.placeholder = "Title";
+        fWhen.placeholder = "Date and time";
+        fLoc.placeholder = "Location";
+        fGuests.placeholder = "Guests";
       } else if (intent === "reminder") {
         modalTitle.textContent = "Set reminder";
-        fTitle.placeholder = "Reminder";
-        fWhen.placeholder = "When";
-        fLoc.placeholder = "Location (optional)";
+        fTitle.placeholder = "Title";
+        fWhen.placeholder = "Date and time";
+        fLoc.placeholder = "Location";
+        fGuests.placeholder = "Guests";
       }
 
       backdrop.classList.add("open");
@@ -1177,7 +1218,7 @@
     }
 
     function saveAction() {
-      if (currentIntent === "share" || currentIntent === "gdoc") {
+      if (currentIntent === "gdoc") {
         closeModal();
         return;
       }
@@ -1196,28 +1237,6 @@
         console.log("Todo list:", lastSavedPayload);
         closeModal();
         showToast("Todo list saved — wire to Google Tasks API later", lastBlobUrl);
-        return;
-      }
-
-      if (currentIntent === "note") {
-        lastSavedPayload = {
-          intent: "note",
-          title: fNoteTitle.value,
-          body: fNoteBody.value,
-          extractedAt: new Date().toISOString(),
-        };
-        try {
-          const arr = JSON.parse(localStorage.getItem("cameraNotes") || "[]");
-          arr.push(lastSavedPayload);
-          localStorage.setItem("cameraNotes", JSON.stringify(arr.slice(-40)));
-        } catch (e) {
-          console.warn(e);
-        }
-        const json = JSON.stringify(lastSavedPayload, null, 2);
-        const blob = new Blob([json], { type: "application/json" });
-        lastBlobUrl = URL.createObjectURL(blob);
-        closeModal();
-        showToast("Note saved on this device", lastBlobUrl);
         return;
       }
 
@@ -1268,15 +1287,13 @@
     btnTask.addEventListener("click", () => openModal("task"));
     btnGoogleDoc.addEventListener("click", () => openModal("gdoc"));
     btnTodoList.addEventListener("click", () => openModal("todolist"));
-    btnNote.addEventListener("click", () => openModal("note"));
     btnReminder.addEventListener("click", () => openModal("reminder"));
-    btnShare.addEventListener("click", () => openModal("share"));
 
     document.getElementById("btnCancel").addEventListener("click", closeModal);
     document.getElementById("btnCloseModal").addEventListener("click", closeModal);
 
     btnSave.addEventListener("click", () => {
-      if (currentIntent === "share" || currentIntent === "gdoc") {
+      if (currentIntent === "gdoc") {
         closeModal();
         return;
       }
@@ -1290,27 +1307,7 @@
         showToast("Copied — paste in the new Google Doc (⌘V)", null);
         closeModal();
       } catch (e) {
-        showToast("Clipboard blocked — use Share", null);
-      }
-    });
-
-    document.getElementById("btnCopy").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(sharePreview.textContent || "");
-        showToast("Copied to clipboard", null);
-      } catch {
-        showToast("Select text manually", null);
-      }
-    });
-
-    btnShareNative.addEventListener("click", async () => {
-      const text = sharePreview.textContent || "";
-      try {
-        await navigator.share({ title: "Camera extract", text });
-        closeModal();
-        showToast("Shared", null);
-      } catch (e) {
-        if (e && e.name !== "AbortError") console.warn(e);
+        showToast("Clipboard blocked — allow clipboard or copy manually", null);
       }
     });
 
