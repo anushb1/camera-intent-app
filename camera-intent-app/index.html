@@ -193,14 +193,24 @@
       right: 0;
       display: flex;
       justify-content: center;
-      gap: 20px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.45);
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.88);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
       pointer-events: none;
-      z-index: 8;
+      z-index: 14;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
-    .camera-modes span.active { color: var(--text); font-weight: 600; }
+    .camera-modes span.active {
+      color: #fff;
+      font-weight: 700;
+    }
 
     .shutter-row {
       position: absolute;
@@ -213,7 +223,7 @@
       gap: 48px;
       padding-bottom: 8px;
       pointer-events: auto;
-      z-index: 10;
+      z-index: 15;
     }
 
     .thumb {
@@ -688,13 +698,42 @@
       cursor: pointer;
       pointer-events: auto;
       user-select: none;
-      padding: 4px 2px;
-      border-radius: 6px;
-      transition: color 0.15s, opacity 0.15s;
+      padding: 6px 10px;
+      border-radius: 999px;
+      transition: color 0.15s, opacity 0.15s, background 0.15s;
+      line-height: 1.25;
+      text-align: center;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .camera-modes span[data-mode="notes"] {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.45);
+      font-weight: 600;
+    }
+
+    .camera-modes span[data-mode].active {
+      background: rgba(255, 255, 255, 0.92);
+      color: #18181b;
+      border-color: transparent;
+      text-shadow: none;
     }
 
     .camera-modes span[data-mode]:active {
-      opacity: 0.85;
+      opacity: 0.92;
+    }
+
+    @media (max-width: 360px) {
+      .camera-modes {
+        font-size: 11px;
+        gap: 6px 8px;
+        padding: 0 6px;
+      }
+      .camera-modes span[data-mode] {
+        padding: 5px 8px;
+      }
     }
 
     .notes-scan-overlay {
@@ -1075,7 +1114,12 @@
 
     <div class="camera-modes" id="cameraModes" role="tablist" aria-label="Camera mode">
       <span data-mode="photo" class="active" role="tab" aria-selected="true">Photo</span>
-      <span data-mode="notes" role="tab" aria-selected="false">Add me for notes</span>
+      <span
+        data-mode="notes"
+        role="tab"
+        aria-selected="false"
+        title="Add me for notes — scan a page in several directions"
+        >Add me for notes</span>
       <span data-mode="night" role="tab" aria-selected="false">Night</span>
     </div>
 

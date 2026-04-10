@@ -10,6 +10,8 @@ After you enable Pages (see below), the app is served at:
 
 Use **HTTPS** so the phone browser allows the camera and motion APIs.
 
+If the UI looks old, **hard-refresh** (mobile: open in a new tab or clear site data) — GitHub Pages and Safari cache aggressively.
+
 ## One-time GitHub setup
 
 1. Push this repo to GitHub (you already have `origin` set).
