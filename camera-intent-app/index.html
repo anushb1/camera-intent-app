@@ -222,6 +222,45 @@
       border-radius: 8px;
       background: var(--surface);
       border: 2px solid rgba(255,255,255,0.2);
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      display: block;
+    }
+
+    .thumb:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    .thumb .thumb-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      pointer-events: none;
+    }
+
+    .thumb.has-preview .thumb-preview {
+      display: block;
+    }
+
+    .thumb.has-preview {
+      background: #000;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .shutter {
@@ -644,6 +683,355 @@
       white-space: nowrap;
     }
 
+    /* —— Add me for notes: guided multi-direction capture —— */
+    .camera-modes span[data-mode] {
+      cursor: pointer;
+      pointer-events: auto;
+      user-select: none;
+      padding: 4px 2px;
+      border-radius: 6px;
+      transition: color 0.15s, opacity 0.15s;
+    }
+
+    .camera-modes span[data-mode]:active {
+      opacity: 0.85;
+    }
+
+    .notes-scan-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      pointer-events: auto;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 28%, transparent 62%, rgba(0,0,0,0.75) 100%);
+    }
+
+    .notes-scan-overlay.open {
+      display: flex;
+    }
+
+    .notes-scan-top {
+      padding: max(12px, env(safe-area-inset-top)) 16px 8px;
+      text-align: center;
+    }
+
+    .notes-scan-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      margin-bottom: 4px;
+    }
+
+    .notes-scan-step {
+      font-size: 11px;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.02em;
+    }
+
+    .notes-scan-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 0 20px;
+    }
+
+    .notes-guide-ring {
+      position: relative;
+      width: min(200px, 52vw);
+      height: min(200px, 52vw);
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.15);
+    }
+
+    .notes-guide-arrow {
+      font-size: 56px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+      transition: transform 0.12s ease-out, color 0.2s;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .notes-guide-arrow.align-good {
+      color: #34c759;
+    }
+
+    .notes-guide-arrow.align-warn {
+      color: #ffcc00;
+    }
+
+    .notes-scan-instruction {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      line-height: 1.35;
+      max-width: 300px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.65);
+    }
+
+    .notes-scan-hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.78);
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.4;
+    }
+
+    .notes-scan-status {
+      font-size: 11px;
+      font-weight: 600;
+      min-height: 1.2em;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .notes-scan-status.ok { color: #34c759; }
+    .notes-scan-status.wait { color: #ffcc00; }
+
+    .notes-scan-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .notes-scan-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .notes-scan-dots span.done {
+      background: #34c759;
+      transform: scale(1.1);
+    }
+
+    .notes-scan-dots span.current {
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
+    }
+
+    .notes-scan-bottom {
+      padding: 12px 16px max(20px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notes-scan-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notes-btn {
+      appearance: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .notes-btn:active { transform: scale(0.97); }
+
+    .notes-btn-ghost {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .notes-btn-primary {
+      background: #fff;
+      color: #000;
+    }
+
+    body.notes-scan-active .intent-wrap {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    body.notes-scan-active .camera-modes {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    body.notes-scan-active .shutter-row {
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    /* Notes scan — always show stitched preview + OCR text */
+    .notes-result-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s;
+      pointer-events: none;
+    }
+
+    .notes-result-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .notes-result-card {
+      width: 100%;
+      max-width: 400px;
+      max-height: min(88dvh, 720px);
+      background: #fff;
+      color: #18181b;
+      border-radius: 16px 16px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.35);
+      transform: translateY(12px);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .notes-result-backdrop.open .notes-result-card {
+      transform: translateY(0);
+    }
+
+    .notes-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #f4f4f5;
+      flex-shrink: 0;
+    }
+
+    .notes-result-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0;
+      color: #18181b;
+    }
+
+    .notes-result-close {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: #f4f4f5;
+      border-radius: 50%;
+      font-size: 22px;
+      line-height: 1;
+      color: #52525b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notes-result-close:hover {
+      background: #e4e4e7;
+    }
+
+    .notes-result-scroll {
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+      padding: 12px 16px;
+    }
+
+    .notes-result-preview-wrap {
+      border-radius: 10px;
+      overflow: hidden;
+      background: #18181b;
+      margin-bottom: 12px;
+      max-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notes-result-preview-wrap img {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .notes-result-meta {
+      font-size: 12px;
+      color: #71717a;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .notes-result-meta.warn {
+      color: #b45309;
+    }
+
+    .notes-result-text {
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      padding: 12px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid #f4f4f5;
+      max-height: 220px;
+      overflow-y: auto;
+      color: #27272a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    }
+
+    .notes-result-text.empty {
+      color: #a1a1aa;
+      font-style: italic;
+      font-family: inherit;
+    }
+
+    .notes-result-actions {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px 14px;
+      border-top: 1px solid #f4f4f5;
+      flex-shrink: 0;
+    }
+
+    .notes-result-actions .notes-btn-primary {
+      flex: 1;
+    }
+
+    .notes-result-actions .notes-btn-ghost {
+      flex: 1;
+      background: #f4f4f5;
+      color: #18181b;
+      border: 1px solid #e4e4e7;
+    }
+
   </style>
 </head>
 <body>
@@ -685,14 +1073,40 @@
       </div>
     </div>
 
-    <div class="camera-modes">
-      <span class="active">Photo</span>
-      <span>Panorama</span>
-      <span>Night</span>
+    <div class="camera-modes" id="cameraModes" role="tablist" aria-label="Camera mode">
+      <span data-mode="photo" class="active" role="tab" aria-selected="true">Photo</span>
+      <span data-mode="notes" role="tab" aria-selected="false">Add me for notes</span>
+      <span data-mode="night" role="tab" aria-selected="false">Night</span>
     </div>
 
+    <div class="notes-scan-overlay" id="notesScanOverlay" aria-hidden="true">
+      <div class="notes-scan-top">
+        <div class="notes-scan-title">Add me for notes</div>
+        <div class="notes-scan-step" id="notesScanStepLabel">Step 1 of 5</div>
+      </div>
+      <div class="notes-scan-center">
+        <div class="notes-guide-ring" aria-hidden="true">
+          <div class="notes-guide-arrow" id="notesGuideArrow">·</div>
+        </div>
+        <p class="notes-scan-instruction" id="notesScanInstruction">Frame the main text in the center.</p>
+        <p class="notes-scan-hint" id="notesScanHint">Hold the phone upright. Tap Capture when the text looks sharp.</p>
+        <div class="notes-scan-status" id="notesScanStatus"></div>
+        <div class="notes-scan-dots" id="notesScanDots" aria-hidden="true"></div>
+      </div>
+      <div class="notes-scan-bottom">
+        <div class="notes-scan-actions">
+          <button type="button" class="notes-btn notes-btn-ghost" id="notesBtnExit">Exit</button>
+          <button type="button" class="notes-btn notes-btn-primary" id="notesBtnCapture">Capture</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="pickImageInput" class="sr-only" accept="image/*" tabindex="-1" aria-hidden="true" />
+
     <div class="shutter-row">
-      <div class="thumb" aria-hidden="true"></div>
+      <button type="button" class="thumb" id="btnLastCapture" aria-label="Photos: open last result, or choose an image to scan">
+        <img class="thumb-preview" id="thumbPreview" alt="" width="44" height="44" />
+      </button>
       <button type="button" class="shutter" id="btnShutter" aria-label="Capture"></button>
       <button type="button" class="flip" id="btnFlip" aria-label="Flip camera">↻</button>
     </div>
@@ -788,6 +1202,26 @@
     <a href="#" id="toastView">Open</a>
   </div>
 
+  <div class="notes-result-backdrop" id="notesResultBackdrop" aria-hidden="true">
+    <div class="notes-result-card" role="dialog" aria-labelledby="notesResultTitle">
+      <div class="notes-result-header">
+        <h2 id="notesResultTitle">Notes scan result</h2>
+        <button type="button" class="notes-result-close" id="notesResultClose" aria-label="Close">×</button>
+      </div>
+      <div class="notes-result-scroll">
+        <div class="notes-result-preview-wrap" id="notesResultPreviewWrap" style="display: none">
+          <img id="notesResultImg" alt="" />
+        </div>
+        <p class="notes-result-meta" id="notesResultMeta"></p>
+        <pre class="notes-result-text empty" id="notesResultText">No text yet.</pre>
+      </div>
+      <div class="notes-result-actions">
+        <button type="button" class="notes-btn notes-btn-ghost" id="notesResultCopy">Copy text</button>
+        <button type="button" class="notes-btn notes-btn-primary" id="notesResultDone">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
     const video = document.getElementById("video");
@@ -834,6 +1268,520 @@
     const MIN_TEXT_LEN = 12;
     /** Only block obviously broken OCR; stricter gating is in text/date heuristics below. */
     const MIN_OCR_CONFIDENCE_HARD = 38;
+    /** Stitched images are noisier — allow slightly lower confidence for showing intent pills. */
+    const MIN_OCR_CONFIDENCE_NOTES = 28;
+
+    /** Guided capture: center + four directions → stitched canvas for OCR (like panorama, any direction). */
+    const NOTES_SCAN_STEPS = [
+      {
+        id: "center",
+        short: "Center",
+        instruction: "Frame the main text in the center.",
+        hint: "Hold the phone upright. Tap Capture when the text looks sharp.",
+        axis: null,
+      },
+      {
+        id: "left",
+        short: "Pan left",
+        instruction: "Turn slowly to the left.",
+        hint: "Keep the camera level. Move until the arrow turns green, or tap Capture.",
+        axis: "left",
+      },
+      {
+        id: "right",
+        short: "Pan right",
+        instruction: "Turn slowly to the right.",
+        hint: "Cover the right side of the page. Green arrow means you are aligned.",
+        axis: "right",
+      },
+      {
+        id: "up",
+        short: "Tilt up",
+        instruction: "Tilt up to capture the top.",
+        hint: "Pivot the phone upward slightly. Follow the arrow.",
+        axis: "up",
+      },
+      {
+        id: "down",
+        short: "Tilt down",
+        instruction: "Tilt down to capture the bottom.",
+        hint: "Pivot downward to finish the scan.",
+        axis: "down",
+      },
+    ];
+
+    const notesScanOverlay = document.getElementById("notesScanOverlay");
+    const notesScanStepLabel = document.getElementById("notesScanStepLabel");
+    const notesScanInstruction = document.getElementById("notesScanInstruction");
+    const notesScanHint = document.getElementById("notesScanHint");
+    const notesScanStatus = document.getElementById("notesScanStatus");
+    const notesScanDots = document.getElementById("notesScanDots");
+    const notesGuideArrow = document.getElementById("notesGuideArrow");
+    const notesBtnExit = document.getElementById("notesBtnExit");
+    const notesBtnCapture = document.getElementById("notesBtnCapture");
+    const cameraModeEls = document.querySelectorAll(".camera-modes [data-mode]");
+    const notesResultBackdrop = document.getElementById("notesResultBackdrop");
+    const notesResultImg = document.getElementById("notesResultImg");
+    const notesResultText = document.getElementById("notesResultText");
+    const notesResultMeta = document.getElementById("notesResultMeta");
+    const notesResultPreviewWrap = document.getElementById("notesResultPreviewWrap");
+    const notesResultClose = document.getElementById("notesResultClose");
+    const notesResultDone = document.getElementById("notesResultDone");
+    const notesResultCopy = document.getElementById("notesResultCopy");
+    const btnLastCapture = document.getElementById("btnLastCapture");
+    const thumbPreview = document.getElementById("thumbPreview");
+    const pickImageInput = document.getElementById("pickImageInput");
+
+    /** Last completed notes / library OCR — reopened from bottom-left thumbnail. */
+    let lastScanSnapshot = {
+      previewDataUrl: "",
+      text: "",
+      metaLine: "",
+      warn: false,
+    };
+
+    let notesScanActive = false;
+    let notesScanStepIndex = 0;
+    /** @type {HTMLCanvasElement[]} */
+    let notesFrames = [];
+    let notesRefAlpha = null;
+    let notesRefBeta = null;
+    let notesRefGamma = null;
+    let notesOrientHandler = null;
+    let notesAlignGoodSince = 0;
+    let notesAutoCaptureTimer = null;
+    let notesStepBusy = false;
+    const NOTES_ALIGN_HOLD_MS = 480;
+    const NOTES_TURN_THRESH = 22;
+    const NOTES_TILT_THRESH = 14;
+
+    function angleDeltaDeg(a, b) {
+      if (a == null || b == null || Number.isNaN(a) || Number.isNaN(b)) return 0;
+      let d = a - b;
+      while (d > 180) d -= 360;
+      while (d < -180) d += 360;
+      return d;
+    }
+
+    function resetNotesDots() {
+      notesScanDots.innerHTML = "";
+      NOTES_SCAN_STEPS.forEach((_, i) => {
+        const d = document.createElement("span");
+        if (i === 0) d.classList.add("current");
+        notesScanDots.appendChild(d);
+      });
+    }
+
+    function updateNotesDots() {
+      const spans = notesScanDots.querySelectorAll("span");
+      spans.forEach((el, i) => {
+        el.classList.remove("done", "current");
+        if (i < notesScanStepIndex) el.classList.add("done");
+        else if (i === notesScanStepIndex) el.classList.add("current");
+      });
+    }
+
+    function grabVideoFrameCanvas() {
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      if (!vw || !vh) return null;
+      const c = document.createElement("canvas");
+      c.width = vw;
+      c.height = vh;
+      c.getContext("2d").drawImage(video, 0, 0);
+      return c;
+    }
+
+    function stitchNotesFrames(frames) {
+      if (!frames.length) return null;
+      const w = frames[0].width;
+      const h = frames[0].height;
+      const out = document.createElement("canvas");
+      out.width = w * 3;
+      out.height = h * 3;
+      const o = out.getContext("2d");
+      o.fillStyle = "#000";
+      o.fillRect(0, 0, out.width, out.height);
+      const pos = {
+        center: [1, 1],
+        left: [0, 1],
+        right: [2, 1],
+        up: [1, 0],
+        down: [1, 2],
+      };
+      frames.forEach((fc, i) => {
+        const id = NOTES_SCAN_STEPS[i].id;
+        const [gx, gy] = pos[id] || [1, 1];
+        o.drawImage(fc, gx * w, gy * h, w, h);
+      });
+      return out;
+    }
+
+    function setNotesArrowForStep(step) {
+      const axis = step.axis;
+      notesGuideArrow.classList.remove("align-good", "align-warn");
+      if (!axis) {
+        notesGuideArrow.textContent = "◎";
+        notesGuideArrow.style.transform = "rotate(0deg)";
+        return;
+      }
+      notesGuideArrow.textContent = "↑";
+      const rot = { left: -90, right: 90, up: 0, down: 180 }[axis] || 0;
+      notesGuideArrow.style.transform = `rotate(${rot}deg)`;
+    }
+
+    function alignmentScore(step, alpha, beta, gamma) {
+      const axis = step.axis;
+      if (!axis) return { ok: true, msg: "" };
+      if (notesRefAlpha == null && alpha != null) notesRefAlpha = alpha;
+      if (notesRefBeta == null && beta != null) notesRefBeta = beta;
+      if (notesRefGamma == null && gamma != null) notesRefGamma = gamma;
+
+      const da = angleDeltaDeg(alpha, notesRefAlpha);
+      const db = beta != null && notesRefBeta != null ? beta - notesRefBeta : 0;
+      const dg = gamma != null && notesRefGamma != null ? gamma - notesRefGamma : 0;
+      let ok = false;
+      let msg = "Turn a bit more";
+
+      if (axis === "left") {
+        if (alpha != null && da < -NOTES_TURN_THRESH) ok = true;
+        else if (alpha == null && dg < -NOTES_TILT_THRESH) ok = true;
+        else if (da > 5) msg = "Turn back toward the left";
+        else msg = "Rotate left slowly (or tilt phone left slightly)";
+      } else if (axis === "right") {
+        if (alpha != null && da > NOTES_TURN_THRESH) ok = true;
+        else if (alpha == null && dg > NOTES_TILT_THRESH) ok = true;
+        else if (da < -5) msg = "Turn back toward the right";
+        else msg = "Rotate right slowly (or tilt phone right slightly)";
+      } else if (axis === "up") {
+        if (db < -NOTES_TILT_THRESH) ok = true;
+        else msg = "Tilt the top of the phone away from you";
+      } else if (axis === "down") {
+        if (db > NOTES_TILT_THRESH) ok = true;
+        else msg = "Tilt the top of the phone toward you";
+      }
+
+      if (alpha == null && beta == null && gamma == null) {
+        return { ok: false, msg: "No motion sensors — use Capture when ready" };
+      }
+      return { ok, msg: ok ? "Hold steady…" : msg };
+    }
+
+    function onNotesOrientation(ev) {
+      if (!notesScanActive) return;
+      const step = NOTES_SCAN_STEPS[notesScanStepIndex];
+      if (!step || !step.axis) return;
+
+      const alpha = ev.alpha;
+      const beta = ev.beta;
+      const gamma = ev.gamma;
+      const { ok, msg } = alignmentScore(step, alpha, beta, gamma);
+
+      notesScanStatus.textContent = msg;
+      notesScanStatus.className = "notes-scan-status" + (ok ? " ok" : " wait");
+      notesGuideArrow.classList.toggle("align-good", ok);
+      notesGuideArrow.classList.toggle("align-warn", !ok);
+
+      const now = performance.now();
+      if (ok) {
+        if (!notesAlignGoodSince) notesAlignGoodSince = now;
+        if (now - notesAlignGoodSince >= NOTES_ALIGN_HOLD_MS) {
+          notesAlignGoodSince = 0;
+          clearTimeout(notesAutoCaptureTimer);
+          notesAutoCaptureTimer = setTimeout(() => captureNotesStep(true), 50);
+        }
+      } else {
+        notesAlignGoodSince = 0;
+      }
+    }
+
+    async function requestOrientationPermission() {
+      if (typeof DeviceOrientationEvent === "undefined") return false;
+      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        try {
+          const s = await DeviceOrientationEvent.requestPermission();
+          return s === "granted";
+        } catch {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function bindNotesOrientation() {
+      if (notesOrientHandler) return;
+      notesOrientHandler = onNotesOrientation;
+      window.addEventListener("deviceorientation", notesOrientHandler, true);
+    }
+
+    function unbindNotesOrientation() {
+      if (notesOrientHandler) {
+        window.removeEventListener("deviceorientation", notesOrientHandler, true);
+        notesOrientHandler = null;
+      }
+    }
+
+    function applyNotesStepUi() {
+      const step = NOTES_SCAN_STEPS[notesScanStepIndex];
+      if (!step) return;
+      notesScanStepLabel.textContent = `Step ${notesScanStepIndex + 1} of ${NOTES_SCAN_STEPS.length}`;
+      notesScanInstruction.textContent = step.instruction;
+      notesScanHint.textContent = step.hint;
+      setNotesArrowForStep(step);
+      notesRefAlpha = null;
+      notesRefBeta = null;
+      notesRefGamma = null;
+      notesAlignGoodSince = 0;
+      notesScanStatus.textContent = step.axis ? "Move the phone to match the arrow" : "";
+      notesScanStatus.className = "notes-scan-status";
+      notesGuideArrow.classList.remove("align-good", "align-warn");
+      updateNotesDots();
+    }
+
+    async function startNotesScan() {
+      const granted = await requestOrientationPermission();
+      if (granted) bindNotesOrientation();
+
+      notesScanActive = true;
+      document.body.classList.add("notes-scan-active");
+      notesScanStepIndex = 0;
+      notesFrames = [];
+      resetNotesDots();
+      notesScanOverlay.classList.add("open");
+      notesScanOverlay.setAttribute("aria-hidden", "false");
+      applyNotesStepUi();
+
+      cameraModeEls.forEach((el) => {
+        el.classList.toggle("active", el.dataset.mode === "notes");
+        el.setAttribute("aria-selected", el.dataset.mode === "notes" ? "true" : "false");
+      });
+    }
+
+    function exitNotesScan() {
+      notesScanActive = false;
+      notesStepBusy = false;
+      notesFrames = [];
+      notesScanStepIndex = 0;
+      document.body.classList.remove("notes-scan-active");
+      notesScanOverlay.classList.remove("open");
+      notesScanOverlay.setAttribute("aria-hidden", "true");
+      unbindNotesOrientation();
+      clearTimeout(notesAutoCaptureTimer);
+      notesAutoCaptureTimer = null;
+      notesAlignGoodSince = 0;
+
+      cameraModeEls.forEach((el) => {
+        const isPhoto = el.dataset.mode === "photo";
+        el.classList.toggle("active", isPhoto);
+        el.setAttribute("aria-selected", isPhoto ? "true" : "false");
+      });
+    }
+
+    /** @param {boolean} [silent] if true, from auto-capture */
+    async function captureNotesStep(silent) {
+      if (!notesScanActive || notesStepBusy) return;
+      clearTimeout(notesAutoCaptureTimer);
+      notesAutoCaptureTimer = null;
+      notesStepBusy = true;
+      const snap = grabVideoFrameCanvas();
+      if (!snap) {
+        notesStepBusy = false;
+        if (!silent) showToast("Camera not ready — try again", null);
+        return;
+      }
+      notesFrames.push(snap);
+      notesScanStepIndex += 1;
+
+      if (notesScanStepIndex >= NOTES_SCAN_STEPS.length) {
+        unbindNotesOrientation();
+        const stitched = stitchNotesFrames(notesFrames);
+        notesFrames = [];
+        exitNotesScan();
+        notesStepBusy = false;
+        if (stitched) {
+          canvas.width = stitched.width;
+          canvas.height = stitched.height;
+          ctx.drawImage(stitched, 0, 0);
+          await runOcrFrameFromCanvas();
+        }
+        return;
+      }
+      applyNotesStepUi();
+      notesStepBusy = false;
+      if (!silent)
+        showToast("Captured " + notesFrames.length + " of " + NOTES_SCAN_STEPS.length + " — continue", null);
+    }
+
+    function updateThumbFromScan(previewDataUrl) {
+      if (!previewDataUrl || !btnLastCapture || !thumbPreview) return;
+      thumbPreview.src = previewDataUrl;
+      thumbPreview.alt = "Last scan preview";
+      btnLastCapture.classList.add("has-preview");
+      btnLastCapture.setAttribute("aria-label", "Open last scan result");
+    }
+
+    function showNotesScanResult(opts) {
+      const { previewDataUrl, text, metaLine, warn, loading } = opts;
+      if (previewDataUrl) {
+        notesResultPreviewWrap.style.display = "flex";
+        notesResultImg.src = previewDataUrl;
+        notesResultImg.alt = "Stitched capture preview";
+      } else {
+        notesResultPreviewWrap.style.display = "none";
+        notesResultImg.removeAttribute("src");
+      }
+      notesResultText.textContent = text != null ? text : "";
+      notesResultText.classList.toggle("empty", !text || !String(text).trim());
+      notesResultMeta.textContent = metaLine || "";
+      notesResultMeta.classList.toggle("warn", !!warn);
+      notesResultCopy.disabled = !!loading;
+      notesResultBackdrop.classList.add("open");
+      notesResultBackdrop.setAttribute("aria-hidden", "false");
+
+      if (!loading && previewDataUrl && text !== "Reading text…") {
+        lastScanSnapshot = {
+          previewDataUrl,
+          text: text != null ? text : "",
+          metaLine: metaLine || "",
+          warn: !!warn,
+        };
+        updateThumbFromScan(previewDataUrl);
+      }
+    }
+
+    function closeNotesScanResult() {
+      notesResultBackdrop.classList.remove("open");
+      notesResultBackdrop.setAttribute("aria-hidden", "true");
+      notesResultCopy.disabled = false;
+    }
+
+    /** Stitched OCR is messier than a single frame — be a bit more permissive. */
+    function isPlausibleNotesStitchText(norm, clean) {
+      if (norm.length < 6) return false;
+      const letters = (norm.match(/[a-z]/gi) || []).length;
+      const words = norm.split(/\s+/).filter((w) => /[a-z]{2,}/i.test(w));
+      if (letters >= 8 && words.length >= 2) return true;
+      return isPlausibleOcrText(norm);
+    }
+
+    function ocrNotesScanQualifiesForIntents(clean, norm) {
+      if (hasTrustworthyDateSignal(clean)) return true;
+      if (ocrJustifiesIntents(clean, norm)) return true;
+      const words = norm.split(/\s+/).filter((w) => /[a-z]{2,}/i.test(w));
+      const letters = (norm.match(/[a-z]/gi) || []).length;
+      if (norm.length >= 18 && words.length >= 3 && letters >= 12) return true;
+      return false;
+    }
+
+    async function runOcrFrameFromCanvas() {
+      let previewDataUrl = "";
+      try {
+        previewDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+      } catch (e) {
+        console.warn(e);
+      }
+
+      if (!worker) {
+        showNotesScanResult({
+          previewDataUrl,
+          text: "(OCR engine not ready — reload the page.)",
+          metaLine: "Tesseract did not initialize.",
+          warn: true,
+          loading: false,
+        });
+        return;
+      }
+
+      if (ocrBusy) {
+        showToast("Still processing — wait a second", null);
+        return;
+      }
+
+      showNotesScanResult({
+        previewDataUrl,
+        text: "Reading text…",
+        metaLine: "Running OCR on your stitched capture.",
+        warn: false,
+        loading: true,
+      });
+
+      ocrBusy = true;
+      try {
+        const {
+          data: { text, confidence: ocrConfRaw },
+        } = await worker.recognize(canvas);
+        const clean = text.replace(/\|/g, "I").trim();
+        lastText = clean;
+        const norm = normalizeOcrStability(clean);
+
+        const tooShort = clean.length < 6;
+        const plausible = !tooShort && isPlausibleNotesStitchText(norm, clean);
+        const confOk =
+          typeof ocrConfRaw !== "number" ||
+          ocrConfRaw >= MIN_OCR_CONFIDENCE_NOTES ||
+          hasTrustworthyDateSignal(clean);
+        const intentsOk = plausible && confOk && ocrNotesScanQualifiesForIntents(clean, norm);
+
+        const confLabel =
+          typeof ocrConfRaw === "number" ? Math.round(ocrConfRaw) + "%" : "n/a";
+
+        if (intentsOk) {
+          const ent = parseEntities(clean);
+          extracted = { title: ent.title, when: ent.when, location: ent.location };
+          lastClassification = classifyScan(clean);
+          parsedTodoLines = [];
+          applyIntentVisibility(lastClassification);
+          showIntents(true);
+          showNotesScanResult({
+            previewDataUrl,
+            text: clean,
+            metaLine:
+              "Quick actions (Calendar, Doc, …) are available below the camera. OCR confidence: " +
+              confLabel +
+              ".",
+            warn: false,
+            loading: false,
+          });
+          showToast("Notes scan complete", null);
+        } else {
+          showIntents(false);
+          let meta = "";
+          if (tooShort) {
+            meta =
+              "Very little text detected — try brighter light, move closer, or retake the scan.";
+          } else if (!plausible) {
+            meta = "Text looks noisy. You can still copy below or retake.";
+          } else if (!confOk) {
+            meta =
+              "Low OCR confidence (" +
+              confLabel +
+              "). Copy the text below or retake if it looks wrong.";
+          } else {
+            meta =
+              "Text captured. Quick actions need clearer date/list signals — use Copy or open Doc manually.";
+          }
+          showNotesScanResult({
+            previewDataUrl,
+            text: clean || "(empty)",
+            metaLine: meta,
+            warn: true,
+            loading: false,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        showNotesScanResult({
+          previewDataUrl,
+          text: lastText || "",
+          metaLine:
+            "OCR failed: " + (e && e.message ? e.message : String(e)),
+          warn: true,
+          loading: false,
+        });
+      } finally {
+        ocrBusy = false;
+      }
+    }
 
     function normalizeOcrStability(s) {
       return s
@@ -1115,6 +2063,7 @@
     }
 
     async function runOcrFrame() {
+      if (notesScanActive) return;
       if (!worker || ocrBusy || !video.videoWidth) return;
       ocrBusy = true;
       try {
@@ -1339,7 +2288,98 @@
       }
     });
 
-    document.getElementById("btnShutter").addEventListener("click", () => runOcrFrame());
+    document.getElementById("btnShutter").addEventListener("click", () => {
+      if (notesScanActive) return;
+      runOcrFrame();
+    });
+
+    notesBtnExit.addEventListener("click", () => exitNotesScan());
+    notesBtnCapture.addEventListener("click", () => captureNotesStep(false));
+
+    notesResultClose.addEventListener("click", () => closeNotesScanResult());
+    notesResultDone.addEventListener("click", () => closeNotesScanResult());
+    notesResultBackdrop.addEventListener("click", (e) => {
+      if (e.target === notesResultBackdrop) closeNotesScanResult();
+    });
+    notesResultCopy.addEventListener("click", async () => {
+      const t = (notesResultText.textContent || "").trim();
+      if (!t || t === "Reading text…") return;
+      try {
+        await navigator.clipboard.writeText(t);
+        showToast("Text copied", null);
+      } catch (err) {
+        console.error(err);
+        showToast("Copy blocked — select text manually", null);
+      }
+    });
+
+    function loadImageFileToCanvasThenOcr(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const maxEdge = 2000;
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const scale = Math.min(1, maxEdge / Math.max(w, h));
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        runOcrFrameFromCanvas();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        showToast("Could not load that image", null);
+      };
+      img.src = url;
+    }
+
+    pickImageInput.addEventListener("change", () => {
+      const f = pickImageInput.files && pickImageInput.files[0];
+      pickImageInput.value = "";
+      if (f) loadImageFileToCanvasThenOcr(f);
+    });
+
+    btnLastCapture.addEventListener("click", () => {
+      if (notesScanActive) return;
+      if (lastScanSnapshot.previewDataUrl) {
+        showNotesScanResult({
+          previewDataUrl: lastScanSnapshot.previewDataUrl,
+          text: lastScanSnapshot.text,
+          metaLine: lastScanSnapshot.metaLine,
+          warn: lastScanSnapshot.warn,
+          loading: false,
+        });
+        return;
+      }
+      pickImageInput.click();
+    });
+
+    cameraModeEls.forEach((el) => {
+      el.addEventListener("click", () => {
+        const m = el.dataset.mode;
+        if (m === "photo") {
+          exitNotesScan();
+          cameraModeEls.forEach((x) => {
+            const on = x.dataset.mode === "photo";
+            x.classList.toggle("active", on);
+            x.setAttribute("aria-selected", on ? "true" : "false");
+          });
+        } else if (m === "notes") {
+          startNotesScan();
+        } else if (m === "night") {
+          showToast("Night mode — coming soon", null);
+          cameraModeEls.forEach((x) => {
+            const on = x.dataset.mode === "photo";
+            x.classList.toggle("active", on);
+            x.setAttribute("aria-selected", on ? "true" : "false");
+          });
+        }
+      });
+    });
 
     btnEvent.addEventListener("click", () => openModal("event"));
     btnTask.addEventListener("click", () => openModal("task"));
