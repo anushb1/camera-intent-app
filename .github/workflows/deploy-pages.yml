@@ -1,4 +1,6 @@
-# Deploy camera-intent-app to GitHub Pages (HTTPS — required for camera on phones)
+# Deploy plan-b camera-intent-app (+ Tesseract vendor) to GitHub Pages.
+# Fetches latest plan-b from https://github.com/anushb1/plan-b (branch plan-b-mvp) at build time
+# so you do not need to duplicate that folder inside this repo.
 name: Deploy to GitHub Pages
 
 on:
@@ -13,26 +15,49 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout camera-intent-app (this repo)
+        uses: actions/checkout@v4
+
+      - name: Checkout plan-b sources
+        uses: actions/checkout@v4
+        with:
+          repository: anushb1/plan-b
+          ref: plan-b-mvp
+          path: plan-b
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: plan-b/package-lock.json
+
+      - name: Build static site
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}/plan-b
+        working-directory: plan-b
+        run: |
+          chmod +x scripts/build-github-pages.sh
+          ./scripts/build-github-pages.sh
+
+      - name: Add .nojekyll
+        run: touch plan-b/_site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: plan-b/_site
+
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: camera-intent-app
-
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
